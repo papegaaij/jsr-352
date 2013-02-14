@@ -20,6 +20,8 @@ package com.ibm.jbatch.container.servicesmanager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -113,22 +115,24 @@ public class ServicesManagerImpl implements BatchContainerConstants, ServicesMan
 	private void initFromPropertiesFiles() {
 
 		Properties serviceIntegratorProps = new Properties();
-		InputStream batchServicesListInputStream = this.getClass()
-				.getResourceAsStream("/META-INF/services/" + BATCH_INTEGRATOR_CONFIG_FILE);
+		try {          
+			Enumeration<URL> batchServicesListURLs = this.getClass().getClassLoader().getResources("/META-INF/services/" + BATCH_INTEGRATOR_CONFIG_FILE);
+			while (batchServicesListURLs.hasMoreElements()) {
+				InputStream batchServicesListInputStream = batchServicesListURLs.nextElement().openStream();
 
-		if (batchServicesListInputStream != null) {
-			try {
-				logger.config("Batch Integrator Config File exists! loading it..");
-				serviceIntegratorProps.load(batchServicesListInputStream);
-				batchServicesListInputStream.close();
-			} catch (IOException e) {
-				logger.config("Error loading " + "/META-INF/services/" + BATCH_INTEGRATOR_CONFIG_FILE + " IOException=" + e.toString());
-			} catch (Exception e) {
-				logger.config("Error loading " + "/META-INF/services/" + BATCH_INTEGRATOR_CONFIG_FILE + " Exception=" + e.toString());
-			}
-		} else {
-			logger.config("Could not find batch integrator config file: " + "/META-INF/services/" + BATCH_INTEGRATOR_CONFIG_FILE);
-		}
+				if (batchServicesListInputStream != null) {
+					logger.fine("Batch Integrator Config File exists! loading it..");
+					serviceIntegratorProps.load(batchServicesListInputStream);
+					batchServicesListInputStream.close();
+				} else {
+					logger.info("Could not find batch integrator config file: " + "/META-INF/services/" + BATCH_INTEGRATOR_CONFIG_FILE);
+				}
+			}  
+		} catch (IOException e) {          
+			logger.info("Error loading " + "/META-INF/services/" + BATCH_INTEGRATOR_CONFIG_FILE + " IOException=" + e.toString());
+		} catch (Exception e) {
+			logger.info("Error loading " + "/META-INF/services/" + BATCH_INTEGRATOR_CONFIG_FILE + " Exception=" + e.toString());
+		} 
 
 		// See if any do not map to service impls.
 
@@ -148,21 +152,24 @@ public class ServicesManagerImpl implements BatchContainerConstants, ServicesMan
 		}
 
 		Properties adminProps = new Properties();
-		InputStream batchAdminConfigListInputStream = this.getClass().getResourceAsStream("/META-INF/services/" + BATCH_ADMIN_CONFIG_FILE);
+		try {          
+			Enumeration<URL> batchAdminConfigListURLs = this.getClass().getClassLoader().getResources("/META-INF/services/" + BATCH_ADMIN_CONFIG_FILE);
+			while (batchAdminConfigListURLs.hasMoreElements()) {
+				InputStream batchAdminConfigListInputStream = batchAdminConfigListURLs.nextElement().openStream();
 
-		if (batchServicesListInputStream != null) {
-			try {
-				logger.config("Batch Admin Config File exists! loading it..");
-				adminProps.load(batchAdminConfigListInputStream);
-				batchAdminConfigListInputStream.close();
-			} catch (IOException e) {
-				logger.config("Error loading " + "/META-INF/services/" + BATCH_ADMIN_CONFIG_FILE + " IOException=" + e.toString());
-			} catch (Exception e) {
-				logger.config("Error loading " + "/META-INF/services/" + BATCH_ADMIN_CONFIG_FILE + " Exception=" + e.toString());
+				if (batchAdminConfigListInputStream != null) {
+					logger.fine("Batch Admin Config File exists! loading it..");
+					adminProps.load(batchAdminConfigListInputStream);
+					batchAdminConfigListInputStream.close();
+				} else {
+					logger.info("Could not find batch admin config file: " + "/META-INF/services/" + BATCH_ADMIN_CONFIG_FILE);
+				}
 			}
-		} else {
-			logger.config("Could not find batch admin config file: " + "/META-INF/services/" + BATCH_ADMIN_CONFIG_FILE);
-		}
+		} catch (IOException e) {          
+			logger.info("Error loading " + "/META-INF/services/" + BATCH_ADMIN_CONFIG_FILE + " IOException=" + e.toString());
+		} catch (Exception e) {
+			logger.info("Error loading " + "/META-INF/services/" + BATCH_ADMIN_CONFIG_FILE + " Exception=" + e.toString());
+		} 
 
 		// See if any DO map to service impls, which would be a mistake
 		Set<String> removeTheseToo = new HashSet<String>();
