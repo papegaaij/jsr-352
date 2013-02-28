@@ -4,7 +4,7 @@
     <artifactId>jbatch</artifactId>
     <groupId>javax.batch</groupId>
     <version>1.0-b17</version>
-    <relativePath>../pom.xml/pom.xml</relativePath>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>javax.batch</groupId>
